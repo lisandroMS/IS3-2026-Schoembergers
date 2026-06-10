@@ -1,0 +1,55 @@
+services:
+
+  postgres:
+    image: postgres:16
+
+    container_name: eventos_db
+
+    restart: always
+
+    environment:
+      POSTGRES_DB: eventos
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+
+    ports:
+      - "5433:5432"
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  backend:
+    build: ./backend
+
+    container_name: eventos_backend
+
+    ports:
+      - "3000:3000"
+
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+
+    depends_on:
+      - postgres
+
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/eventos
+
+  frontend:
+    build: ./frontend
+
+    container_name: eventos_frontend
+
+    ports:
+      - "5173:5173"
+
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
